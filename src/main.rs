@@ -4,29 +4,7 @@ use rand::Rng;
 fn main() {
     
     println!("Please enter how many numbers do you want to generate: ");
-	let mut input = String::new();
-	let count : u32;
-	loop {
-		match std::io::stdin().read_line(&mut input) {
-			Err(_) => {
-				println!("Error reading line");
-
-				continue;
-			},
-			Ok(_) => {
-				count = match input.trim().parse() {
-					Err(_) => {
-						println!("Enter a valid number");
-						input.clear();
-						continue;
-					},
-					Ok(num) => num,
-				}
-			}
-		}
-		break;
-	}
-	let numbers = generate_numbers(count);
+		let numbers = generate_numbers(input_u32());
 
 	println!("The sum is: {:?}", sum(&numbers));
 
@@ -34,23 +12,8 @@ fn main() {
  	
 	println!("The Median is {:?}", median(&numbers));
  	
-
- 	let mut mode_map = HashMap::new();
- 	for i in numbers.iter(){
- 		let occurences = mode_map.entry(i).or_insert(0);
- 		*occurences += 1;
- 	}
-
-	
- 	let mut mode = 0;
- 	let mut max_count = 0;
- 	for (key, val) in mode_map.iter(){
- 		if *val > max_count {
- 			max_count = *val;
- 			mode = **key
- 		}
- 	}
- 	println!("The mode is {:?} ({:?} times)", mode, max_count);
+ 	let (mode_val, mode_count) = mode(&numbers);
+ 	println!("The mode is {:?} ({:?} times)", mode_val, mode_count);
 
 }
 
@@ -99,4 +62,46 @@ fn print_numbers(numbers : &Vec<i32>) {
 		print!(" {}", number)
 	}	
 	println!("]");
+}
+
+fn mode(numbers: &Vec<i32>) -> (i32, i32) {
+	let mut mode_map = HashMap::new();
+ 	for i in numbers.iter(){
+ 		let occurences = mode_map.entry(i).or_insert(0);
+ 		*occurences += 1;
+ 	}
+
+	
+ 	let mut mode = 0;
+ 	let mut max_count = 0;
+ 	for (key, val) in mode_map.iter(){
+ 		if *val > max_count {
+ 			max_count = *val;
+ 			mode = **key;
+ 		}
+ 	}
+ 	(mode, max_count)
+}
+
+fn input_u32() -> u32{
+	let mut input = String::new();
+	loop {
+		match std::io::stdin().read_line(&mut input) {
+			Err(_) => {
+				println!("Error reading line");
+
+				continue;
+			},
+			Ok(_) => {
+				match input.trim().parse() {
+					Err(_) => {
+						println!("Enter a valid number");
+						input.clear();
+						continue;
+					},
+					Ok(num) => break num,
+				}
+			}
+		}
+	}
 }
